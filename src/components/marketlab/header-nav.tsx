@@ -11,6 +11,7 @@ const navLinkClass =
 export function HeaderNav() {
   const pathname = usePathname();
   const isMarkets = pathname === "/markets" || pathname.startsWith("/markets/");
+  const isPositions = pathname === "/positions";
 
   return (
     <nav aria-label="Main" className="flex items-center gap-1">
@@ -23,6 +24,16 @@ export function HeaderNav() {
         aria-current={isMarkets ? "page" : undefined}
       >
         Markets
+      </Link>
+      <Link
+        href="/positions"
+        className={cn(
+          navLinkClass,
+          isPositions && "bg-muted text-foreground font-semibold",
+        )}
+        aria-current={isPositions ? "page" : undefined}
+      >
+        My Positions
       </Link>
     </nav>
   );
