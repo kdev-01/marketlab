@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { AppShell } from "@/components/marketlab/app-shell";
+import { ThemeProvider } from "@/components/marketlab/theme-provider";
+import { ThemeScript } from "@/components/marketlab/theme-script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,8 +33,14 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeScript />
+        <ThemeProvider>
+          <AppShell>{children}</AppShell>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
