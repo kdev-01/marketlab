@@ -5,63 +5,57 @@ export type PriceHistoryPoint = {
 
 export type ChartRange = "1d" | "1w" | "all";
 
-export const DEFAULT_REFERENCE_NOW = new Date("2026-06-04T12:00:00.000Z");
+export type MarketShareTotals = {
+  yesSharesCents: number;
+  noSharesCents: number;
+};
 
-const POINT_COUNT = 40;
-const HISTORY_DAYS = 30;
-const MIN_CHANCE = 5;
-const MAX_CHANCE = 95;
+type RpcPricePoint = {
+  recorded_at: string;
+  yes_chance: number;
+};
 
-function hashMarketId(marketId: string): number {
-  let hash = 0;
-  for (let i = 0; i < marketId.length; i++) {
-    hash = (hash * 31 + marketId.charCodeAt(i)) >>> 0;
-  }
-  return hash || 1;
-}
-
-function mulberry32(seed: number): () => number {
-  return () => {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function clampChance(value: number): number {
-  return Math.min(MAX_CHANCE, Math.max(MIN_CHANCE, value));
-}
-
-export function buildMockPriceHistory(
-  marketId: string,
-  options?: { referenceNow?: Date },
-): PriceHistoryPoint[] {
-  const referenceNow = options?.referenceNow ?? DEFAULT_REFERENCE_NOW;
-  const random = mulberry32(hashMarketId(marketId));
-  const endMs = referenceNow.getTime();
-  const startMs = endMs - HISTORY_DAYS * 24 * 60 * 60 * 1000;
-  const stepMs = (endMs - startMs) / (POINT_COUNT - 1);
-
-  let yesChance = MIN_CHANCE + random() * (MAX_CHANCE - MIN_CHANCE);
-  const points: PriceHistoryPoint[] = [];
-
-  for (let i = 0; i < POINT_COUNT; i++) {
-    const recordedAt = new Date(startMs + stepMs * i).toISOString();
-    yesChance = clampChance(yesChance + (random() - 0.5) * 12);
-    points.push({
-      recordedAt,
-      yesChance: Math.round(yesChance),
-    });
+export function parsePriceHistoryPoints(data: unknown): PriceHistoryPoint[] {
+  if (!Array.isArray(data)) {
+    return [];
   }
 
-  return points;
+  return data
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+      const point = item as RpcPricePoint;
+      if (
+        typeof point.recorded_at !== "string" ||
+        typeof point.yes_chance !== "number"
+      ) {
+        return null;
+      }
+      return {
+        recordedAt: point.recorded_at,
+        yesChance: Math.round(point.yes_chance),
+      };
+    })
+    .filter((point): point is PriceHistoryPoint => point !== null);
 }
 
-export function getCurrentYesChance(points: PriceHistoryPoint[]): number {
+export function computeYesChanceFromShareTotals(
+  totals: MarketShareTotals,
+): number | null {
+  const total = totals.yesSharesCents + totals.noSharesCents;
+  if (total <= 0) {
+    return null;
+  }
+
+  return Math.round((totals.yesSharesCents / total) * 100);
+}
+
+export function getCurrentYesChance(
+  points: PriceHistoryPoint[],
+): number | null {
   if (points.length === 0) {
-    return 0;
+    return null;
   }
   return points[points.length - 1].yesChance;
 }
@@ -78,7 +72,7 @@ const RANGE_MS: Record<Exclude<ChartRange, "all">, number> = {
 export function filterPriceHistoryByRange(
   points: PriceHistoryPoint[],
   range: ChartRange,
-  referenceNow: Date = DEFAULT_REFERENCE_NOW,
+  referenceNow: Date,
 ): PriceHistoryPoint[] {
   if (range === "all" || points.length === 0) {
     return points;
@@ -174,4 +168,26 @@ export function buildSvgAreaPath(
   const startX = paddingLeft;
 
   return `${linePath} L ${endX.toFixed(2)} ${baselineY.toFixed(2)} L ${startX.toFixed(2)} ${baselineY.toFixed(2)} Z`;
+}
+
+/** Deterministic sample points for unit tests only. */
+export function buildSamplePriceHistoryForTests(
+  marketId: string,
+  referenceNow: Date,
+): PriceHistoryPoint[] {
+  const seed = marketId.charCodeAt(0) % 20;
+  return [
+    {
+      recordedAt: new Date(referenceNow.getTime() - 7 * 86400000).toISOString(),
+      yesChance: 40 + seed,
+    },
+    {
+      recordedAt: new Date(referenceNow.getTime() - 3 * 86400000).toISOString(),
+      yesChance: 45 + seed,
+    },
+    {
+      recordedAt: referenceNow.toISOString(),
+      yesChance: 50 + seed,
+    },
+  ];
 }

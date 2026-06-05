@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { MarketBuyPlaceholder } from "@/components/marketlab/market-buy-placeholder";
+import { MarketBuySection } from "@/components/marketlab/market-buy-section";
 import { MarketOutcomes } from "@/components/marketlab/market-outcomes";
 import { MarketPriceChart } from "@/components/marketlab/market-price-chart";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,7 @@ import {
   formatMarketStatus,
   statusBadgeClassName,
 } from "@/lib/markets/display";
-import {
-  getCurrentYesChance,
-  type PriceHistoryPoint,
-} from "@/lib/markets/price-history";
+import type { PriceHistoryPoint } from "@/lib/markets/price-history";
 import type { Tables } from "@/lib/supabase/database.types";
 import { cn } from "@/lib/utils";
 
@@ -24,16 +21,17 @@ export type MarketDetailItem = Pick<
 type MarketDetailContentProps = {
   market: MarketDetailItem;
   priceHistory: PriceHistoryPoint[];
+  yesChance: number | null;
   referenceNow: string;
 };
 
 export function MarketDetailContent({
   market,
   priceHistory,
+  yesChance,
   referenceNow,
 }: MarketDetailContentProps) {
   const { label, variant } = formatMarketStatus(market.status);
-  const yesChance = getCurrentYesChance(priceHistory);
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10 sm:py-14">
@@ -57,7 +55,11 @@ export function MarketDetailContent({
         <p className="text-base leading-relaxed text-muted-foreground">
           {market.description || "No description provided."}
         </p>
-        <MarketPriceChart points={priceHistory} referenceNow={referenceNow} />
+        <MarketPriceChart
+          points={priceHistory}
+          yesChance={yesChance}
+          referenceNow={referenceNow}
+        />
         <MarketOutcomes yesChance={yesChance} />
         <dl className="rounded-xl border border-border bg-card p-6 text-sm shadow-sm">
           <div className="flex justify-between gap-4 border-b border-border py-3 first:pt-0 last:border-0 last:pb-0">
@@ -71,7 +73,12 @@ export function MarketDetailContent({
             </dd>
           </div>
         </dl>
-        <MarketBuyPlaceholder status={market.status} />
+        <MarketBuySection
+          marketId={market.id}
+          status={market.status}
+          closeDate={market.close_date}
+          referenceNow={referenceNow}
+        />
       </article>
     </main>
   );

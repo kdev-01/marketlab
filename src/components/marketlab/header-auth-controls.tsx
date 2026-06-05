@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/lib/auth/actions";
-import { formatFakeBalance } from "@/lib/money/format-fake-balance";
+import { formatFakeBalance } from "@/lib/fake-money";
 
 type HeaderAuthControlsProps = {
   isSignedIn: boolean;

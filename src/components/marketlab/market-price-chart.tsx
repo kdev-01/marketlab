@@ -31,6 +31,7 @@ const RANGE_OPTIONS: { value: ChartRange; label: string }[] = [
 
 type MarketPriceChartProps = {
   points: PriceHistoryPoint[];
+  yesChance: number | null;
   referenceNow: string;
 };
 
@@ -52,6 +53,7 @@ function pickAxisTicks(points: PriceHistoryPoint[]): PriceHistoryPoint[] {
 
 export function MarketPriceChart({
   points,
+  yesChance,
   referenceNow,
 }: MarketPriceChartProps) {
   const [range, setRange] = useState<ChartRange>("all");
@@ -62,7 +64,7 @@ export function MarketPriceChart({
     [points, range, referenceDate],
   );
 
-  const currentYesChance = getCurrentYesChance(points);
+  const currentYesChance = yesChance ?? getCurrentYesChance(points) ?? null;
   const linePath = buildSvgLinePath(filteredPoints, {
     width: CHART_WIDTH,
     height: CHART_HEIGHT,
@@ -89,7 +91,9 @@ export function MarketPriceChart({
         <div>
           <p className="text-sm text-muted-foreground">Yes chance</p>
           <p className="text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl">
-            {formatYesChancePercent(currentYesChance)}
+            {currentYesChance === null
+              ? "—"
+              : formatYesChancePercent(currentYesChance)}
           </p>
         </div>
         <div className="flex items-center gap-1">
@@ -111,6 +115,11 @@ export function MarketPriceChart({
       </div>
 
       <div className="mt-6 w-full">
+        {filteredPoints.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Chart updates after the first fake-money buy on this market.
+          </p>
+        ) : null}
         <svg
           viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
           preserveAspectRatio="none"

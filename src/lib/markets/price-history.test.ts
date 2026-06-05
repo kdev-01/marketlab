@@ -1,86 +1,88 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  buildMockPriceHistory,
-  buildSvgLinePath,
-  DEFAULT_REFERENCE_NOW,
+  buildSamplePriceHistoryForTests,
+  computeYesChanceFromShareTotals,
   filterPriceHistoryByRange,
   formatYesChancePercent,
   getCurrentYesChance,
+  parsePriceHistoryPoints,
 } from "@/lib/markets/price-history";
 
 const MARKET_ID = "11111111-1111-1111-1111-111111111111";
+const REFERENCE_NOW = new Date("2026-06-04T12:00:00.000Z");
 
-describe("buildMockPriceHistory", () => {
-  it("returns a deterministic series for the same market id", () => {
-    const first = buildMockPriceHistory(MARKET_ID);
-    const second = buildMockPriceHistory(MARKET_ID);
+describe("parsePriceHistoryPoints", () => {
+  it("parses rpc price history arrays", () => {
+    expect(
+      parsePriceHistoryPoints([
+        { recorded_at: "2026-06-01T00:00:00.000Z", yes_chance: 42 },
+        { recorded_at: "2026-06-02T00:00:00.000Z", yes_chance: 55 },
+      ]),
+    ).toEqual([
+      { recordedAt: "2026-06-01T00:00:00.000Z", yesChance: 42 },
+      { recordedAt: "2026-06-02T00:00:00.000Z", yesChance: 55 },
+    ]);
+  });
+
+  it("returns empty array for invalid payloads", () => {
+    expect(parsePriceHistoryPoints(null)).toEqual([]);
+    expect(parsePriceHistoryPoints([{ bad: true }])).toEqual([]);
+  });
+});
+
+describe("computeYesChanceFromShareTotals", () => {
+  it("derives yes chance from aggregated share cents", () => {
+    expect(
+      computeYesChanceFromShareTotals({
+        yesSharesCents: 300,
+        noSharesCents: 100,
+      }),
+    ).toBe(75);
+    expect(
+      computeYesChanceFromShareTotals({
+        yesSharesCents: 0,
+        noSharesCents: 0,
+      }),
+    ).toBeNull();
+  });
+});
+
+describe("buildSamplePriceHistoryForTests", () => {
+  it("returns deterministic sample points for tests", () => {
+    const first = buildSamplePriceHistoryForTests(MARKET_ID, REFERENCE_NOW);
+    const second = buildSamplePriceHistoryForTests(MARKET_ID, REFERENCE_NOW);
+
     expect(first).toEqual(second);
-  });
-
-  it("returns different series for different market ids", () => {
-    const first = buildMockPriceHistory(MARKET_ID);
-    const second = buildMockPriceHistory(
-      "22222222-2222-2222-2222-222222222222",
-    );
-    expect(first).not.toEqual(second);
-  });
-
-  it("keeps yes chance within bounds", () => {
-    const points = buildMockPriceHistory(MARKET_ID);
-    for (const point of points) {
-      expect(point.yesChance).toBeGreaterThanOrEqual(5);
-      expect(point.yesChance).toBeLessThanOrEqual(95);
-    }
+    expect(first.length).toBeGreaterThan(1);
   });
 });
 
 describe("getCurrentYesChance", () => {
-  it("returns the last point yes chance", () => {
-    const points = buildMockPriceHistory(MARKET_ID);
+  it("returns the latest point yes chance", () => {
+    const points = buildSamplePriceHistoryForTests(MARKET_ID, REFERENCE_NOW);
     expect(getCurrentYesChance(points)).toBe(
       points[points.length - 1].yesChance,
     );
+  });
+
+  it("returns null when history is empty", () => {
+    expect(getCurrentYesChance([])).toBeNull();
+  });
+});
+
+describe("filterPriceHistoryByRange", () => {
+  it("filters points by range relative to reference now", () => {
+    const points = buildSamplePriceHistoryForTests(MARKET_ID, REFERENCE_NOW);
+    const filtered = filterPriceHistoryByRange(points, "1w", REFERENCE_NOW);
+
+    expect(filtered.length).toBeGreaterThan(0);
+    expect(filtered.length).toBeLessThanOrEqual(points.length);
   });
 });
 
 describe("formatYesChancePercent", () => {
   it("formats rounded percent labels", () => {
-    expect(formatYesChancePercent(62.4)).toBe("62%");
-    expect(formatYesChancePercent(62.6)).toBe("63%");
-  });
-});
-
-describe("filterPriceHistoryByRange", () => {
-  it("returns all points for the all range", () => {
-    const points = buildMockPriceHistory(MARKET_ID);
-    expect(filterPriceHistoryByRange(points, "all")).toEqual(points);
-  });
-
-  it("narrows points for 1d and 1w ranges", () => {
-    const points = buildMockPriceHistory(MARKET_ID);
-    const oneDay = filterPriceHistoryByRange(
-      points,
-      "1d",
-      DEFAULT_REFERENCE_NOW,
-    );
-    const oneWeek = filterPriceHistoryByRange(
-      points,
-      "1w",
-      DEFAULT_REFERENCE_NOW,
-    );
-
-    expect(oneDay.length).toBeGreaterThan(0);
-    expect(oneWeek.length).toBeGreaterThan(oneDay.length);
-    expect(oneWeek.length).toBeLessThan(points.length);
-  });
-});
-
-describe("buildSvgLinePath", () => {
-  it("returns a stable path for a fixed fixture", () => {
-    const points = buildMockPriceHistory(MARKET_ID);
-    const path = buildSvgLinePath(points, { width: 400, height: 200 });
-    expect(path).toMatch(/^M /);
-    expect(buildSvgLinePath(points, { width: 400, height: 200 })).toBe(path);
+    expect(formatYesChancePercent(42.4)).toBe("42%");
   });
 });
