@@ -1,7 +1,10 @@
+import { SurfaceCard } from "@/components/marketlab/surface-card";
+
 export function MarketsEmptyState() {
   return (
-    <div
-      className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center"
+    <SurfaceCard
+      className="border-dashed bg-muted/30 text-center"
+      contentClassName="py-12"
       data-testid="markets-empty-state"
     >
       <h2 className="text-lg font-semibold">No markets yet</h2>
@@ -12,6 +15,6 @@ export function MarketsEmptyState() {
         </code>
         . This page works while signed in or signed out.
       </p>
-    </div>
+    </SurfaceCard>
   );
 }

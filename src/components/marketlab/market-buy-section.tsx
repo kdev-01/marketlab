@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { FakeMoneyChips } from "@/components/marketlab/fake-money-chips";
 import { MarketBuyForm } from "@/components/marketlab/market-buy-form";
+import { SurfaceCard } from "@/components/marketlab/surface-card";
 import { Button } from "@/components/ui/button";
 import { getAuthUser, getCurrentProfile } from "@/lib/auth/queries";
 import { isMarketBuyable } from "@/lib/markets/buyable";
@@ -44,17 +46,17 @@ export async function MarketBuySection({
   const buyable = isMarketBuyable(status, closeDate, new Date(referenceNow));
 
   return (
-    <section className="rounded-xl border border-border bg-card p-6 text-sm shadow-sm">
-      <h2 className="font-medium">Buy with fake money</h2>
+    <SurfaceCard title="Buy with fake money">
+      <FakeMoneyChips variant="compact" className="mb-4" />
 
       {!buyable ? (
-        <p className="mt-2 text-muted-foreground">
+        <p className="text-muted-foreground">
           {buyUnavailableMessage(status, closeDate, referenceNow)}
         </p>
       ) : (
         <BuyableMarketContent marketId={marketId} />
       )}
-    </section>
+    </SurfaceCard>
   );
 }
 
@@ -63,7 +65,7 @@ async function BuyableMarketContent({ marketId }: { marketId: string }) {
 
   if (!user) {
     return (
-      <div className="mt-4 space-y-3">
+      <div className="space-y-3">
         <p className="text-muted-foreground">
           Sign in to buy Yes or No shares with your fake-money balance.
         </p>
@@ -79,7 +81,7 @@ async function BuyableMarketContent({ marketId }: { marketId: string }) {
 
   if (!profile) {
     return (
-      <p className="mt-2 text-muted-foreground">
+      <p className="text-muted-foreground">
         Your fake-money balance is unavailable right now.
       </p>
     );

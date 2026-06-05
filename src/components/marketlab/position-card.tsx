@@ -1,38 +1,37 @@
 import Link from "next/link";
-
+import { StatTile } from "@/components/marketlab/stat-tile";
+import { StatusBadge } from "@/components/marketlab/status-badge";
+import { SurfaceCard } from "@/components/marketlab/surface-card";
 import { Button } from "@/components/ui/button";
 import { formatFakeBalance } from "@/lib/fake-money";
-import {
-  formatCloseDate,
-  formatMarketStatus,
-  statusBadgeClassName,
-} from "@/lib/markets/display";
+import { formatCloseDate } from "@/lib/markets/display";
 import type { PositionListItem } from "@/lib/markets/position-queries";
-import { cn } from "@/lib/utils";
 
 export function PositionCard({ position }: { position: PositionListItem }) {
-  const { label, variant } = formatMarketStatus(position.marketStatus);
   const closeLabel = formatCloseDate(position.marketCloseDate);
+  const yesDominant =
+    position.yesSharesCents >= position.noSharesCents &&
+    position.yesSharesCents > 0;
+  const noDominant =
+    position.noSharesCents > position.yesSharesCents &&
+    position.noSharesCents > 0;
 
   return (
-    <article className="flex h-full flex-col rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm">
+    <SurfaceCard
+      as="article"
+      hoverable
+      className="flex h-full flex-col [&>div]:flex [&>div]:flex-1 [&>div]:flex-col"
+    >
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-lg font-semibold leading-snug">
           <Link
             href={`/markets/${position.marketId}`}
-            className="hover:underline"
+            className="hover:text-brand hover:underline"
           >
             {position.marketTitle}
           </Link>
         </h2>
-        <span
-          className={cn(
-            "shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium",
-            statusBadgeClassName(variant),
-          )}
-        >
-          {label}
-        </span>
+        <StatusBadge status={position.marketStatus} />
       </div>
 
       <dl className="mt-4 space-y-1 text-sm">
@@ -43,24 +42,20 @@ export function PositionCard({ position }: { position: PositionListItem }) {
       </dl>
 
       <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-background/50 px-3 py-2 dark:bg-input/20">
-          <dt className="text-muted-foreground">Yes shares</dt>
-          <dd className="font-medium tabular-nums">
-            {formatFakeBalance(position.yesSharesCents)}
-          </dd>
-        </div>
-        <div className="rounded-lg border border-border bg-background/50 px-3 py-2 dark:bg-input/20">
-          <dt className="text-muted-foreground">No shares</dt>
-          <dd className="font-medium tabular-nums">
-            {formatFakeBalance(position.noSharesCents)}
-          </dd>
-        </div>
-        <div className="rounded-lg border border-border bg-background/50 px-3 py-2 dark:bg-input/20">
-          <dt className="text-muted-foreground">Invested</dt>
-          <dd className="font-medium tabular-nums">
-            {formatFakeBalance(position.investedCents)}
-          </dd>
-        </div>
+        <StatTile
+          label="Yes shares"
+          value={formatFakeBalance(position.yesSharesCents)}
+          accent={yesDominant ? "yes" : "none"}
+        />
+        <StatTile
+          label="No shares"
+          value={formatFakeBalance(position.noSharesCents)}
+          accent={noDominant ? "no" : "none"}
+        />
+        <StatTile
+          label="Invested"
+          value={formatFakeBalance(position.investedCents)}
+        />
       </dl>
 
       <div className="mt-6">
@@ -68,6 +63,6 @@ export function PositionCard({ position }: { position: PositionListItem }) {
           <Link href={`/markets/${position.marketId}`}>View market</Link>
         </Button>
       </div>
-    </article>
+    </SurfaceCard>
   );
 }
