@@ -1,12 +1,13 @@
 import Link from "next/link";
 
+import { SurfaceCard } from "@/components/marketlab/surface-card";
 import { Button } from "@/components/ui/button";
 
 export function PositionsSignedOutState() {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 text-sm shadow-sm">
+    <SurfaceCard>
       <h2 className="text-lg font-semibold">Sign in to view your positions</h2>
-      <p className="mt-2 text-muted-foreground">
+      <p className="mt-2 text-sm text-muted-foreground">
         Your Yes and No share positions are only visible when you are signed in.
       </p>
       <div className="mt-4">
@@ -14,6 +15,6 @@ export function PositionsSignedOutState() {
           <Link href="/login">Sign in</Link>
         </Button>
       </div>
-    </div>
+    </SurfaceCard>
   );
 }

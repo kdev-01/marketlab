@@ -19,7 +19,7 @@ export function HeaderAuthControls({
     return (
       <div
         data-slot="auth"
-        className="flex min-w-0 items-center gap-2"
+        className="flex min-w-0 items-center gap-1.5 sm:gap-2"
         data-auth-state="signed-out"
       >
         <Button asChild variant="outline" size="sm">
@@ -35,10 +35,10 @@ export function HeaderAuthControls({
   return (
     <div
       data-slot="auth"
-      className="flex min-w-0 items-center gap-2"
+      className="flex min-w-0 items-center gap-1.5 sm:gap-2"
       data-auth-state="signed-in"
     >
-      <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+      <span className="rounded-md border border-brand/30 bg-brand/10 px-2 py-1 text-xs font-medium tabular-nums text-foreground sm:px-2.5">
         {balanceCents === null
           ? "Balance unavailable"
           : formatFakeBalance(balanceCents)}

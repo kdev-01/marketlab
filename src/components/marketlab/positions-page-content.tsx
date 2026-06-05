@@ -1,3 +1,4 @@
+import { AlertBanner } from "@/components/marketlab/alert-banner";
 import { PositionsList } from "@/components/marketlab/positions-list";
 import { PositionsSignedOutState } from "@/components/marketlab/positions-signed-out-state";
 import { getAuthUser } from "@/lib/auth/queries";
@@ -14,10 +15,10 @@ export async function PositionsPageContent() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-6 py-8 text-center text-sm">
+      <AlertBanner className="px-6 py-8 text-center">
         Could not load your positions. Check your Supabase connection and try
         again.
-      </div>
+      </AlertBanner>
     );
   }
 

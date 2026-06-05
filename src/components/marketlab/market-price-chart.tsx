@@ -89,8 +89,10 @@ export function MarketPriceChart({
     <section className="rounded-xl border border-border bg-card p-6 text-card-foreground shadow-sm">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm text-muted-foreground">Yes chance</p>
-          <p className="text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl">
+          <p className="text-sm font-medium text-muted-foreground">
+            Yes chance
+          </p>
+          <p className="text-4xl font-semibold tracking-tight text-brand tabular-nums sm:text-5xl">
             {currentYesChance === null
               ? "—"
               : formatYesChancePercent(currentYesChance)}

@@ -52,6 +52,24 @@ describe("PositionsList", () => {
     expect(screen.getByTestId("positions-empty-state")).toBeInTheDocument();
   });
 
+  it("shows portfolio summary when positions exist", () => {
+    render(<PositionsList positions={[yesPosition, noPosition]} />);
+
+    expect(screen.getByTestId("positions-summary")).toBeInTheDocument();
+    expect(
+      screen.getByText("Markets held").nextElementSibling,
+    ).toHaveTextContent("2");
+    expect(
+      screen.getByText("Total invested").nextElementSibling,
+    ).toHaveTextContent("$80.00 fake");
+    expect(
+      screen.getByText("Yes exposure").nextElementSibling,
+    ).toHaveTextContent("$50.00 fake");
+    expect(
+      screen.getByText("No exposure").nextElementSibling,
+    ).toHaveTextContent("$25.00 fake");
+  });
+
   it("renders Yes shares for a position", () => {
     render(<PositionsList positions={[yesPosition]} />);
 

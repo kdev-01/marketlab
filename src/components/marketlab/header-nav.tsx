@@ -14,12 +14,16 @@ export function HeaderNav() {
   const isPositions = pathname === "/positions";
 
   return (
-    <nav aria-label="Main" className="flex items-center gap-1">
+    <nav
+      aria-label="Main"
+      className="-mx-1 flex items-center gap-1 overflow-x-auto sm:mx-0"
+    >
       <Link
         href="/markets"
         className={cn(
           navLinkClass,
-          isMarkets && "bg-muted text-foreground font-semibold",
+          isMarkets &&
+            "border border-brand/30 bg-brand/10 font-semibold text-foreground",
         )}
         aria-current={isMarkets ? "page" : undefined}
       >
@@ -29,7 +33,8 @@ export function HeaderNav() {
         href="/positions"
         className={cn(
           navLinkClass,
-          isPositions && "bg-muted text-foreground font-semibold",
+          isPositions &&
+            "border border-brand/30 bg-brand/10 font-semibold text-foreground",
         )}
         aria-current={isPositions ? "page" : undefined}
       >

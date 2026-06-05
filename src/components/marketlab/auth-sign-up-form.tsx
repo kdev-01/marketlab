@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { useActionState } from "react";
 
+import { AlertBanner } from "@/components/marketlab/alert-banner";
+import { FormInput, FormLabel } from "@/components/marketlab/form-input";
 import { Button } from "@/components/ui/button";
 import { type AuthActionState, signUpAction } from "@/lib/auth/actions";
 
 const initialState: AuthActionState = {};
-
-const inputClassName =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:border-input dark:bg-input/30";
 
 export function AuthSignUpForm() {
   const [state, formAction, isPending] = useActionState(
@@ -42,70 +41,51 @@ export function AuthSignUpForm() {
 
   return (
     <form action={formAction} className="space-y-4">
-      {state.error ? (
-        <p
-          role="alert"
-          className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-        >
-          {state.error}
-        </p>
-      ) : null}
+      {state.error ? <AlertBanner>{state.error}</AlertBanner> : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="first_name" className="text-sm font-medium">
-            First name
-          </label>
-          <input
+          <FormLabel htmlFor="first_name">First name</FormLabel>
+          <FormInput
             id="first_name"
             name="first_name"
             type="text"
             autoComplete="given-name"
             required
-            className={inputClassName}
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="last_name" className="text-sm font-medium">
-            Last name
-          </label>
-          <input
+          <FormLabel htmlFor="last_name">Last name</FormLabel>
+          <FormInput
             id="last_name"
             name="last_name"
             type="text"
             autoComplete="family-name"
             required
-            className={inputClassName}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium">
-          Email
-        </label>
-        <input
+        <FormLabel htmlFor="email">Email</FormLabel>
+        <FormInput
           id="email"
           name="email"
           type="email"
           autoComplete="email"
           required
-          className={inputClassName}
         />
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium">
-          Password
-        </label>
-        <input
+        <FormLabel htmlFor="password">Password</FormLabel>
+        <FormInput
           id="password"
           name="password"
           type="password"
           autoComplete="new-password"
           required
           minLength={6}
-          className={inputClassName}
         />
       </div>
 

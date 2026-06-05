@@ -34,6 +34,26 @@ describe("MarketBuyForm", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows live share-cent preview when amount is valid", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <MarketBuyForm
+        marketId="11111111-1111-1111-1111-111111111111"
+        balanceCents={10000}
+        yesSharesCents={100}
+        noSharesCents={0}
+        investedCents={100}
+      />,
+    );
+
+    await user.type(screen.getByLabelText(/Fake dollars to spend/), "2.50");
+
+    expect(screen.getByTestId("buy-preview")).toHaveTextContent(
+      "Share cents to receive: $2.50 fake",
+    );
+  });
+
   it("shows success state with updated balance from action", async () => {
     buyMarketSharesActionMock.mockImplementation(
       async (
