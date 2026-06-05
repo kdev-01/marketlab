@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { MarketDetailContent } from "@/components/marketlab/market-detail-content";
-import {
-  buildMockPriceHistory,
-  DEFAULT_REFERENCE_NOW,
-} from "@/lib/markets/price-history";
+import { getMarketChartData } from "@/lib/markets/market-stats-queries";
 import { getMarketById } from "@/lib/markets/queries";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -25,15 +22,18 @@ export default async function MarketDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const priceHistory = buildMockPriceHistory(market.id, {
-    referenceNow: DEFAULT_REFERENCE_NOW,
-  });
+  const referenceNow = new Date();
+  const { priceHistory, yesChance } = await getMarketChartData(
+    market.id,
+    referenceNow,
+  );
 
   return (
     <MarketDetailContent
       market={market}
       priceHistory={priceHistory}
-      referenceNow={DEFAULT_REFERENCE_NOW.toISOString()}
+      yesChance={yesChance}
+      referenceNow={referenceNow.toISOString()}
     />
   );
 }

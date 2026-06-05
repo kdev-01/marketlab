@@ -1,0 +1,1 @@
+-- No-op: buy_market_shares is defined in 20260605010000_buy_market_shares.sql.
