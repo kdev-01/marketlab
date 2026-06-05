@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
+import { HeaderAuth } from "@/components/marketlab/header-auth";
 import { HeaderNav } from "@/components/marketlab/header-nav";
 import { ThemeToggle } from "@/components/marketlab/theme-toggle";
 
@@ -29,7 +31,17 @@ export function Header() {
           <HeaderNav />
         </div>
         <div className="flex items-center gap-2">
-          <div data-slot="auth" className="min-w-0" />
+          <Suspense
+            fallback={
+              <div
+                data-slot="auth"
+                className="h-7 w-28 animate-pulse rounded-md bg-muted"
+                aria-hidden
+              />
+            }
+          >
+            <HeaderAuth />
+          </Suspense>
           <ThemeToggle />
         </div>
       </div>
