@@ -73,6 +73,7 @@ export async function buyMarketSharesAction(
   }
 
   revalidatePath(`/markets/${marketId}`);
+  revalidatePath("/positions");
   revalidatePath("/", "layout");
 
   return {
